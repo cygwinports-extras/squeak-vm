@@ -15,7 +15,7 @@
  LINK		= $(LIBTOOL) --mode=link \
  		  $(CC) $(CFLAGS) $(XCFLAGS) \
 +		  -Wl,--out-implib,lib$@.a \
- 		  $(LDFLAGS) $(XLDFLAGS) -export-dynamic -o
+ 		  $(LDFLAGS) $(XLDFLAGS) -export-dynamic -R$(libdir) -o
  RANLIB		= :
 --- origsrc/squeak-3.10/platforms/unix/config/Makefile.in	2006-10-18 11:17:11.000000000 -0500
 +++ src/squeak-3.10/platforms/unix/config/Makefile.in	2012-08-01 17:06:34.668839600 -0500
@@ -52,3 +52,20 @@
 +++ src/squeak-3.10/platforms/unix/plugins/ImmX11Plugin/Makefile.inc	2012-08-01 18:19:49.957235800 -0500
 @@ -0,0 +1,1 @@
 +XLDFLAGS=  ../vm-display-X11/vm-display-X11.la
+--- origsrc/Squeak-3.10-6/platforms/unix/plugins/SqueakFFIPrims/Makefile.in	2008-09-02 13:49:28.000000000 -0500
++++ src/Squeak-3.10-6/platforms/unix/plugins/SqueakFFIPrims/Makefile.in	2012-08-05 17:43:57.714726700 -0500
+@@ -12,6 +12,7 @@ TARGET	= SqueakFFIPrims$a
+ OBJS	= SqueakFFIPrims$o ffi-test$o $(FFI_O)
+ 
+ XINCLUDES	= [includes]
++XLDFLAGS	= -lffi
+ 
+ $(TARGET) : $(OBJS) Makefile
+ 	$(LINK) $(TARGET) $(OBJS)
+--- origsrc/Squeak-3.10-6/platforms/unix/plugins/XDisplayControlPlugin/Makefile.inc	2008-09-02 13:49:31.000000000 -0500
++++ src/Squeak-3.10-6/platforms/unix/plugins/XDisplayControlPlugin/Makefile.inc	2012-08-05 17:22:16.834629100 -0500
+@@ -1,3 +1,3 @@
+ XCPPFLAGS= -I$(topdir)/platforms/Cross/plugins/FilePlugin -I$(topdir)/platforms/Cross/plugins/SocketPlugin
+ XINCLUDES= $(X_INCLUDES)
+-XLDFLAGS= $(X_LIBS)
++XLDFLAGS= ../vm-display-X11/vm-display-X11.la $(X_LIBS)
