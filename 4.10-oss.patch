@@ -1,0 +1,7 @@
+--- origsrc/Squeak-4.10.2.2614-src/unix/vm-sound-OSS/config.cmake	2009-08-26 20:48:06.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/vm-sound-OSS/config.cmake	2012-11-21 02:47:43.447401000 -0600
+@@ -1,2 +1 @@
+-PLUGIN_REQUIRE_INCLUDE (ALSA_SOUNDLIB alsa/asoundlib.h)
+-PLUGIN_REQUIRE_LIBRARY (ASOUND asound)
++PLUGIN_REQUIRE_INCLUDE (SYS_SOUNDCARD sys/soundcard.h)
+

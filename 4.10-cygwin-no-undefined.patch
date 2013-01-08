@@ -1,0 +1,81 @@
+--- origsrc/Squeak-4.10.2.2614-src/unix/cmake/PluginExternal.cmake	2009-08-26 20:48:04.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/cmake/PluginExternal.cmake	2012-11-21 03:15:44.704800900 -0600
+@@ -14,6 +14,6 @@ INCLUDE_DIRECTORIES (${@plugin@_include_
+ 
+ ADD_LIBRARY (@plugin@ MODULE @plugin_sources@)
+ 
+-TARGET_LINK_LIBRARIES (@plugin@ ${@plugin@_link_libraries})
++TARGET_LINK_LIBRARIES (@plugin@ ${@plugin@_link_libraries} squeakvm${scriptsuffix})
+ 
+ INSTALL (TARGETS @plugin@ LIBRARY DESTINATION @plgdir@)
+--- origsrc/Squeak-4.10.2.2614-src/unix/cmake/Plugins.cmake	2011-01-26 21:16:32.000000000 -0600
++++ src/Squeak-4.10.2.2614-src/unix/cmake/Plugins.cmake	2012-11-21 14:48:58.150951600 -0600
+@@ -30,10 +30,10 @@ MACRO (INTERNAL_PLUGIN plugin)
+     ENDFOREACH (dir)
+   ENDIF (DEFINED ${plugin}_sources)
+   FILE (WRITE ${bld}/${plugin}/CMakeLists.in "")
++  FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${config}/PluginInternal.cmake)
+   FOREACH (dir ${unix}/plugins ${unix})
+     FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${dir}/${plugin}/build.cmake)
+   ENDFOREACH (dir)
+-  FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${config}/PluginInternal.cmake)
+   CONFIGURE_FILE (${bld}/${plugin}/CMakeLists.in ${bld}/${plugin}/CMakeLists.txt @ONLY)
+   ADD_SUBDIRECTORY (${bld}/${plugin} ${bld}/${plugin})
+ ENDMACRO (INTERNAL_PLUGIN)
+@@ -53,10 +53,10 @@ MACRO (EXTERNAL_PLUGIN plugin)
+     STRING_APPEND (plugin_sources "${${plugin}_extra_sources}")
+   ENDIF (DEFINED ${plugin}_extra_sources)
+   FILE (WRITE ${bld}/${plugin}/CMakeLists.in "")
++  FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${config}/PluginExternal.cmake)
+   FOREACH (dir ${unix}/plugins ${unix})
+     FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${dir}/${plugin}/build.cmake)
+   ENDFOREACH (dir)
+-  FILE_APPEND (${bld}/${plugin}/CMakeLists.in ${config}/PluginExternal.cmake)
+   CONFIGURE_FILE (${bld}/${plugin}/CMakeLists.in ${bld}/${plugin}/CMakeLists.txt @ONLY)
+   ADD_SUBDIRECTORY (${bld}/${plugin} ${bld}/${plugin})
+ ENDMACRO (EXTERNAL_PLUGIN)
+--- origsrc/Squeak-4.10.2.2614-src/unix/plugins/B3DAcceleratorPlugin/config.cmake	2009-09-04 19:21:02.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/plugins/B3DAcceleratorPlugin/config.cmake	2012-11-21 03:27:53.308864500 -0600
+@@ -7,6 +7,9 @@ ENDIF ()
+ 
+ IF (OPENGL_FOUND)
+   SET (USE_X11_GLX 1)
++  IF(CYGWIN)
++    PLUGIN_LINK_LIBRARIES(GL)
++  ENDIF(CYGWIN)
+ ENDIF ()
+ 
+ IF (AGL_FOUND)
+--- origsrc/Squeak-4.10.2.2614-src/unix/plugins/XDisplayControlPlugin/build.cmake	2009-08-26 20:48:05.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/plugins/XDisplayControlPlugin/build.cmake	2012-11-21 14:44:19.778562200 -0600
+@@ -1 +1,6 @@
+ EXPECT_UNDEFINED_SYMBOLS ()
++
++IF (CYGWIN)
++    SET_TARGET_PROPERTIES (@plugin@ PROPERTIES LINK_FLAGS "-Wl,${CMAKE_BINARY_DIR}/vm-display-X11/so.vm-display-X11")
++    ADD_DEPENDENCIES (@plugin@ vm-display-X11)
++ENDIF ()
+--- origsrc/Squeak-4.10.2.2614-src/unix/plugins/XDisplayControlPlugin/config.cmake	2009-08-26 20:48:05.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/plugins/XDisplayControlPlugin/config.cmake	2012-11-21 14:42:03.754363900 -0600
+@@ -2,4 +2,5 @@ IF (NOT X11_FOUND)
+     PLUGIN_DISABLE ()
+ ELSE ()
+     PLUGIN_INCLUDE_DIRECTORIES (${cross}/plugins/FilePlugin ${cross}/plugins/SocketPlugin)
++    PLUGIN_LINK_LIBRARIES (${X11_X11_LIB})
+ ENDIF ()
+--- origsrc/Squeak-4.10.2.2614-src/unix/vm/build.cmake	2012-09-16 20:03:14.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/vm/build.cmake	2012-11-21 03:17:04.235920800 -0600
+@@ -43,7 +43,7 @@ INCLUDE_DIRECTORIES (
+   ${vm_include_directories}
+ )
+ 
+-SET_TARGET_PROPERTIES (squeakvm${scriptsuffix} PROPERTIES LINK_FLAGS "${CMAKE_EXE_EXPORTS_C_FLAG}")
++SET_TARGET_PROPERTIES (squeakvm${scriptsuffix} PROPERTIES ENABLE_EXPORTS TRUE)
+ 
+ TARGET_LINK_LIBRARIES (squeakvm${scriptsuffix} m ${squeak_libs} ${vm_link_libraries})
+ 
+--- origsrc/Squeak-4.10.2.2614-src/unix/vm-sound-pulse/config.cmake	2009-09-15 12:46:23.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/unix/vm-sound-pulse/config.cmake	2012-11-21 05:05:30.860410000 -0600
+@@ -1 +1,2 @@
+ PLUGIN_REQUIRE_LIBRARY (PULSE pulse-simple)
++PLUGIN_LINK_LIBRARIES (pulse)
