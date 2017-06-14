@@ -1,16 +1,6 @@
 --- origsrc/Squeak-4.10.2.2614-src/unix/plugins/ScratchPlugin/unixSeriaPort2Ops.c	2012-07-30 16:58:07.000000000 -0500
 +++ src/Squeak-4.10.2.2614-src/unix/plugins/ScratchPlugin/unixSeriaPort2Ops.c	2012-11-21 04:56:45.938125800 -0600
-@@ -170,7 +170,8 @@ int SerialPortSetOption(int portNum, int
- 
- 	switch (optionNum) {
- 	case 1: // baud rate
--		if (cfsetspeed(&options, newValue) == -1) return PRIM_FAILED;
-+		if (cfsetospeed(&options, newValue) == -1) return PRIM_FAILED;
-+		cfsetispeed(&options, newValue);
- 		break;
- 	case 2: // # of data bits
- 		switch(newValue) {
-@@ -296,11 +297,13 @@ int OpenPortNamed(const char *bsdPath, i
+@@ -296,11 +296,13 @@ int OpenPortNamed(const char *bsdPath, i
  		goto error;
  	}
  
@@ -24,19 +14,6 @@
  
  	// save port settings so we can restore them later
  	if (tcgetattr(fDescr, &gOrigTermios[entryIndex]) == -1) {
-@@ -313,10 +316,11 @@ int OpenPortNamed(const char *bsdPath, i
- 	options = gOrigTermios[entryIndex];
- 
- 	// set the baud rate
--	if (cfsetspeed(&options, baudRate) == -1) {
-+	if (cfsetospeed(&options, baudRate) == -1) {
- 		printf("Error setting speed %d %s - %s(%d).\n", baudRate, bsdPath, strerror(errno), errno);
- 		goto error;
- 	}
-+	cfsetispeed(&options, baudRate);
- 
- 	// set raw input (non-canonical) mode, with writes not blocking.
- 	cfmakeraw(&options);
 --- origsrc/Squeak-4.10.2.2614-src/unix/plugins/SerialPlugin/sqUnixSerial.c	2011-03-14 00:01:56.000000000 -0500
 +++ src/Squeak-4.10.2.2614-src/unix/plugins/SerialPlugin/sqUnixSerial.c	2012-11-21 02:49:33.551566000 -0600
 @@ -104,9 +104,11 @@ static drDecode dataRateDecode[] = {

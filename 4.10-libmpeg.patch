@@ -1,0 +1,11 @@
+--- origsrc/Squeak-4.10.2.2614-src/Cross/plugins/Mpeg3Plugin/libmpeg/video/motion.c	2006-09-14 12:52:43.000000000 -0500
++++ src/Squeak-4.10.2.2614-src/Cross/plugins/Mpeg3Plugin/libmpeg/video/motion.c	2017-06-13 20:53:09.843784600 -0500
+@@ -64,7 +64,7 @@ static inline void mpeg3video_calc_mv(in
+ int *dmvector, * differential motion vector *
+ int mvx, int mvy  * decoded mv components (always in field format) *
+ */
+-#if !defined(sun)
++#if 0 //!defined(sun)
+ INLINE
+ #endif
+ void mpeg3video_calc_dmv(mpeg3video_t *video, 

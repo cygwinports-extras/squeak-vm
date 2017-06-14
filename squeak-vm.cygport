@@ -1,8 +1,8 @@
 inherit cmake
 
-NAME="squeak"
+NAME="squeak-vm"
 VERSION=4.10.2.2614
-RELEASE=1
+RELEASE=2
 CATEGORY="Interpreters"
 SUMMARY="Squeak Smalltalk virtual machine"
 DESCRIPTION="Squeak is a full-featured implementation of the Smalltalk
@@ -14,20 +14,24 @@ ever created. It also includes a customisable framework for creating
 dynamic HTTP servers and interactively extensible Web sites."
 HOMEPAGE="http://squeakvm.org/"
 SRC_URI="http://squeakvm.org/unix/release/Squeak-${PV}-src.tar.gz"
-SRC_DIR="Squeak-${PV}-src/unix"
+SRC_DIR="Squeak-${PV}-src"
 
 PATCH_URI="
+	http://pkgs.fedoraproject.org/cgit/rpms/squeak-vm.git/plain/squeak-vm-4.10.2-format-security.patch
+	http://pkgs.fedoraproject.org/cgit/rpms/squeak-vm.git/plain/squeak-vm-4.10.2-squeak-init-fix.patch
 	4.10-cygwin-no-undefined.patch
 	4.10-cygwin-termios.patch
+	4.10-libmpeg.patch
 	4.10-oss.patch
 "
 
 DEPS_PATH="/usr/lib/squeak/${VERSION%.*}-${VERSION##*.}"
 # not detected because plugins are named so.*
-REQUIRES="libaudio2 libcairo2 libdbus1_3 libffi4 libGL1 libglib2.0_0 libpango1.0_0 libpulse0 libpulse-simple0 libuuid1 libX11_6 libXext6 libXrender1"
+REQUIRES="libaudio2 libcairo2 libdbus1_3 libffi6 libGL1 libglib2.0_0 libpango1.0_0 libpulse0 libpulse-simple0 libuuid1 libX11_6 libXext6 libXrender1"
 
 src_compile() {
-	CYGCONF_SOURCE=${S}/cmake
+	gnuconfigize ${S}/unix/cmake
+	CYGCONF_SOURCE=${S}/unix/cmake
 	cd ${B}
 	cygconf --HAVE_TIMEZONE=ON
 	cygmake
